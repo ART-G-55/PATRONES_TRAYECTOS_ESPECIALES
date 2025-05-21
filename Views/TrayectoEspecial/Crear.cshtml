@@ -10,12 +10,12 @@
 
 <form asp-action="Crear" method="post">
     <div class="form-group">
-        <label asp-for="FechaSolicitud"></label>
+        <label for="FechaSolicitud">Fecha de Solicitud</label>
         <input asp-for="FechaSolicitud" class="form-control" type="date" required />
     </div>
 
     <div class="form-group">
-        <label asp-for="UsuarioId"></label>
+        <label for="UsuarioId">Nombre del Usuario</label>
         <select asp-for="UsuarioId" class="form-control" required>
             <option value="">Seleccione un usuario</option>
             @foreach (var usuario in usuarios)
@@ -26,7 +26,7 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="OrigenId"></label>
+        <label for="OrigenId">Lugar de Origen</label>
         <select asp-for="OrigenId" class="form-control" required>
             <option value="">Seleccione un origen</option>
             @foreach (var lugar in lugares)
@@ -37,7 +37,7 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="DestinoId"></label>
+        <label for="DestinoId">Lugar de Destino</label>
         <select asp-for="DestinoId" class="form-control" required>
             <option value="">Seleccione un destino</option>
             @foreach (var lugar in lugares)
@@ -48,16 +48,16 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="FechaServicio"></label>
+        <label for="FechaServicio">Fecha del Servicio</label>
         <input asp-for="FechaServicio" class="form-control" type="date" required min="@DateTime.Now.ToString("yyyy-MM-dd")" />
     </div>
 
     <div class="form-group">
-        <label asp-for="HoraServicio"></label>
+        <label for="HoraServicio">Hora del Servicio</label>
         <input asp-for="HoraServicio" class="form-control" type="time" required />
     </div>
 
-    <button type="submit" class="btn btn-primary">Guardar Trayecto</button>
+    <button type="submit" class="btn btn-primary mt-3">Guardar Trayecto</button>
 </form>
 
 @if (ViewBag.Error != null)
