@@ -36,6 +36,7 @@ namespace Trayectos_Especiales.Models
         public string NombreUsuario { get; set; }
         public string NombreOrigen { get; set; }
         public string NombreDestino { get; set; }
+        public string Estado { get; set; }
 
     }
 }

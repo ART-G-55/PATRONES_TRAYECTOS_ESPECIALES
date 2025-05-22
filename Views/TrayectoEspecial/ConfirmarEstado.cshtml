@@ -1,0 +1,55 @@
+﻿@model List<Trayectos_Especiales.Models.TrayectoPendiente>
+
+@{
+    ViewData["Title"] = "Confirmar Estado de Trayectos";
+}
+
+<h2 class="mb-4">Confirmar Estado de Trayectos Pendientes</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No hay trayectos pendientes por confirmar.</div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Fecha Solicitud</th>
+                <th>Usuario</th>
+                <th>Origen</th>
+                <th>Destino</th>
+                <th>Fecha Servicio</th>
+                <th>Hora Servicio</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var t in Model)
+            {
+                <tr>
+                    <td>@t.FechaSolicitud.ToShortDateString()</td>
+                    <td>@t.NombreUsuario</td>
+                    <td>@t.NombreOrigen</td>
+                    <td>@t.NombreDestino</td>
+                    <td>@t.FechaServicio.ToShortDateString()</td>
+                    <td>@t.HoraServicio</td>
+                    <td>@t.Estado</td>
+                    <td>
+                        <form asp-action="ConfirmarEstado" method="post" style="display:inline;">
+                            <input type="hidden" name="idTrayecto" value="@t.Id" />
+                            <input type="hidden" name="confirmar" value="true" />
+                            <button type="submit" class="btn btn-success btn-sm">Aprobar</button>
+                        </form>
+                        <form asp-action="ConfirmarEstado" method="post" style="display:inline;">
+                            <input type="hidden" name="idTrayecto" value="@t.Id" />
+                            <input type="hidden" name="confirmar" value="false" />
+                            <button type="submit" class="btn btn-danger btn-sm">Rechazar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
