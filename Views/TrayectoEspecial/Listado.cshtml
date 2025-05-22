@@ -1,0 +1,33 @@
+﻿@model List<Trayectos_Especiales.Models.Trayecto>
+
+@{
+    ViewData["Title"] = "Listado de Trayectos Especiales";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Fecha Solicitud</th>
+            <th>Usuario</th>
+            <th>Origen</th>
+            <th>Destino</th>
+            <th>Fecha Servicio</th>
+            <th>Hora Servicio</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var trayecto in Model)
+        {
+            <tr>
+                <td>@trayecto.FechaSolicitud.ToString("yyyy-MM-dd")</td>
+                <td>@trayecto.NombreUsuario</td>
+                <td>@trayecto.NombreOrigen</td>
+                <td>@trayecto.NombreDestino</td>
+                <td>@trayecto.FechaServicio.ToString("yyyy-MM-dd")</td>
+                <td>@trayecto.HoraServicio</td>
+            </tr>
+        }
+    </tbody>
+</table>

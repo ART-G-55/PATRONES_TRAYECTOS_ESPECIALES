@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 using Trayectos_Especiales.Models;
+using System;
+using System.Collections.Generic;
 
 namespace Trayectos_Especiales.Controllers
 {
@@ -65,14 +67,14 @@ namespace Trayectos_Especiales.Controllers
             {
                 _connection.Open();
 
-                using (var cmd = new NpgsqlCommand("SELECT insertar_trayecto(@fechasolicitud, @usuarioid, @origenid, @destinoid, @fechaservicio, @horaservicio)", _connection))
+                using (var cmd = new NpgsqlCommand("SELECT insertar_trayecto(@fechasolicitud, @idusuario, @idorigen, @iddestino, @fechaservicio, @horaservicio)", _connection))
                 {
                     cmd.Parameters.AddWithValue("fechasolicitud", trayecto.FechaSolicitud);
-                    cmd.Parameters.AddWithValue("usuarioid", trayecto.UsuarioId);
-                    cmd.Parameters.AddWithValue("origenid", trayecto.OrigenId);
-                    cmd.Parameters.AddWithValue("destinoid", trayecto.DestinoId);
+                    cmd.Parameters.AddWithValue("idusuario", trayecto.UsuarioId);
+                    cmd.Parameters.AddWithValue("idorigen", trayecto.OrigenId);
+                    cmd.Parameters.AddWithValue("iddestino", trayecto.DestinoId);
                     cmd.Parameters.AddWithValue("fechaservicio", trayecto.FechaServicio);
-                    cmd.Parameters.AddWithValue("horaservicio", trayecto.HoraServicio);
+                    cmd.Parameters.AddWithValue("horaservicio", TimeSpan.Parse(trayecto.HoraServicio));
 
                     cmd.ExecuteNonQuery();
                 }
@@ -127,6 +129,35 @@ namespace Trayectos_Especiales.Controllers
 
                 return View(trayecto);
             }
+        }
+
+        [HttpGet]
+        public IActionResult Listado()
+        {
+            var trayectos = new List<Trayecto>();
+
+            _connection.Open();
+
+            using (var cmd = new NpgsqlCommand("SELECT * FROM obtener_trayectos()", _connection))
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    trayectos.Add(new Trayecto
+                    {
+                        FechaSolicitud = reader.GetDateTime(0),
+                        NombreUsuario = reader.GetString(1),
+                        NombreOrigen = reader.GetString(2),
+                        NombreDestino = reader.GetString(3),
+                        FechaServicio = reader.GetDateTime(4),
+                        HoraServicio = reader.GetTimeSpan(5).ToString()
+                    });
+                }
+            }
+
+            _connection.Close();
+
+            return View(trayectos);
         }
     }
 }
