@@ -1,6 +1,8 @@
 using Npgsql;
 using Microsoft.Extensions.Configuration;
+
 var builder = WebApplication.CreateBuilder(args);
+
 // Agregar servicio para la conexión Npgsql
 builder.Services.AddScoped<NpgsqlConnection>(sp =>
 {
@@ -9,17 +11,23 @@ builder.Services.AddScoped<NpgsqlConnection>(sp =>
     return new NpgsqlConnection(connectionString);
 });
 
+// Para usar sesiones:
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // tiempo de expiración
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
-// Add services to the container.
+// Agregar servicios para controladores con vistas (¡IMPORTANTE que esté antes de Build!)
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -29,9 +37,10 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Account}/{action=Login}/{id?}");
 
 app.Run();
