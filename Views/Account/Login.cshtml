@@ -41,12 +41,12 @@
                     <h3 class="text-center mb-4">Iniciar Sesión</h3>
                     <form asp-controller="Account" asp-action="Login" method="post">
                         <div class="mb-3">
-                            <label for="Usuario" class="form-label">Usuario</label>
-                            <input type="text" name="Usuario" class="form-control" required />
+                            <label for="correo" class="form-label">Correo</label>
+                            <input type="text" name="correo" class="form-control" required />
                         </div>
                         <div class="mb-3">
-                            <label for="Contrasena" class="form-label">Contraseña</label>
-                            <input type="password" name="Contrasena" class="form-control" required />
+                            <label for="contrasena" class="form-label">Contraseña</label>
+                            <input type="password" name="contrasena" class="form-control" required />
                         </div>
 
                         @if (ViewBag.Error != null)

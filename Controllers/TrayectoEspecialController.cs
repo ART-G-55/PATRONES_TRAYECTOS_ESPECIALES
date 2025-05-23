@@ -266,7 +266,6 @@ namespace Trayectos_Especiales.Controllers
             return RedirectToAction("ConfirmarEstado");
         }
 
-
         [HttpGet]
         public IActionResult ConfirmarEstado()
         {

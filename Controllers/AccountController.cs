@@ -19,6 +19,7 @@ namespace Trayectos_Especiales.Controllers
             return View();
         }
 
+        [HttpPost]
         public IActionResult Login(string correo, string contrasena)
         {
             try
@@ -27,24 +28,22 @@ namespace Trayectos_Especiales.Controllers
                 connection.Open();
 
                 using var cmd = new NpgsqlCommand("SELECT id, nombrecompleto, esadministrador FROM tbl_users WHERE correo = @correo AND contrasena = @contrasena", connection);
-                cmd.Parameters.AddWithValue("correo", correo);
-                cmd.Parameters.AddWithValue("contrasena", contrasena);
+                cmd.Parameters.Add("correo", NpgsqlTypes.NpgsqlDbType.Varchar).Value = correo;
+                cmd.Parameters.Add("contrasena", NpgsqlTypes.NpgsqlDbType.Varchar).Value = contrasena;
 
                 using var reader = cmd.ExecuteReader();
 
                 if (reader.Read())
                 {
-                    // Usuario válido
                     int id = reader.GetInt32(0);
                     string nombre = reader.GetString(1);
                     bool esAdmin = reader.GetBoolean(2);
 
-                    // Guardar info de sesión (puedes usar HttpContext.Session, pero asegúrate de configurarlo)
                     HttpContext.Session.SetInt32("UserId", id);
                     HttpContext.Session.SetString("UserName", nombre);
                     HttpContext.Session.SetString("UserRole", esAdmin ? "Admin" : "User");
 
-                    return RedirectToAction("Index", "Home"); // o la página principal que desees
+                    return RedirectToAction("Index", "Home");
                 }
                 else
                 {
@@ -58,5 +57,6 @@ namespace Trayectos_Especiales.Controllers
                 return View();
             }
         }
+
     }
 }
