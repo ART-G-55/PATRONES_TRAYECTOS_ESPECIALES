@@ -15,11 +15,31 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
+        var userId = HttpContext.Session.GetInt32("UserId");
+        var userName = HttpContext.Session.GetString("UserName");
+        var userRole = HttpContext.Session.GetString("UserRole");
+
+        if (userId == null)
+        {
+            // Si no hay sesión activa, redirige al login
+            return RedirectToAction("Login", "Account");
+        }
+
+        ViewBag.UserName = userName;
+        ViewBag.UserRole = userRole;
+
         return View();
     }
 
     public IActionResult Privacy()
     {
+        var userId = HttpContext.Session.GetInt32("UserId");
+        var userName = HttpContext.Session.GetString("UserName");
+        var userRole = HttpContext.Session.GetString("UserRole");
+
+        ViewBag.UserId = userId;
+        ViewBag.UserName = userName;
+        ViewBag.UserRole = userRole;
         return View();
     }
 

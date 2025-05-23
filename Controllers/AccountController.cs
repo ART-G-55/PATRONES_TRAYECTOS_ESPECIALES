@@ -24,12 +24,14 @@ namespace Trayectos_Especiales.Controllers
         {
             try
             {
+                Console.WriteLine($"Intentando login con correo: {correo} y contraseña: {contrasena}");
+
                 using var connection = new NpgsqlConnection(_configuration.GetConnectionString("PostgresConnection"));
                 connection.Open();
 
                 using var cmd = new NpgsqlCommand("SELECT id, nombrecompleto, esadministrador FROM tbl_users WHERE correo = @correo AND contrasena = @contrasena", connection);
-                cmd.Parameters.Add("correo", NpgsqlTypes.NpgsqlDbType.Varchar).Value = correo;
-                cmd.Parameters.Add("contrasena", NpgsqlTypes.NpgsqlDbType.Varchar).Value = contrasena;
+                cmd.Parameters.AddWithValue("correo", correo);
+                cmd.Parameters.AddWithValue("contrasena", contrasena);
 
                 using var reader = cmd.ExecuteReader();
 
@@ -39,6 +41,8 @@ namespace Trayectos_Especiales.Controllers
                     string nombre = reader.GetString(1);
                     bool esAdmin = reader.GetBoolean(2);
 
+                    Console.WriteLine($"Login exitoso: ID={id}, Nombre={nombre}, Admin={esAdmin}");
+
                     HttpContext.Session.SetInt32("UserId", id);
                     HttpContext.Session.SetString("UserName", nombre);
                     HttpContext.Session.SetString("UserRole", esAdmin ? "Admin" : "User");
@@ -47,12 +51,14 @@ namespace Trayectos_Especiales.Controllers
                 }
                 else
                 {
+                    Console.WriteLine("Login fallido: correo o contraseña incorrectos.");
                     ViewBag.Error = "Correo o contraseña incorrectos.";
                     return View();
                 }
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Error en la conexión o consulta: " + ex.Message);
                 ViewBag.Error = "Error en la conexión o consulta: " + ex.Message;
                 return View();
             }

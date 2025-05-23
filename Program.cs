@@ -1,9 +1,9 @@
-using Npgsql;
+﻿using Npgsql;
 using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Agregar servicio para la conexi�n Npgsql
+// Agregar servicio para la conexión Npgsql
 builder.Services.AddScoped<NpgsqlConnection>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
@@ -15,12 +15,12 @@ builder.Services.AddScoped<NpgsqlConnection>(sp =>
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30); // tiempo de expiraci�n
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // tiempo de expiración
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
 
-// Agregar servicios para controladores con vistas (�IMPORTANTE que est� antes de Build!)
+// Agregar servicios para controladores con vistas
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -36,8 +36,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// ⚠️ ¡IMPORTANTE! La sesión debe ir ANTES de Authorization
+app.UseSession(); // <--- Mover esta línea antes de Authorization
 app.UseAuthorization();
-app.UseSession();
 
 app.MapControllerRoute(
     name: "default",

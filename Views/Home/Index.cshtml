@@ -1,8 +1,79 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Página Principal";
+    Layout = null; // sin layout, porque la vista será completa con menú lateral
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            width: 220px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #f8f9fa;
+            border-right: 1px solid #ddd;
+            padding: 1rem;
+        }
+
+            .sidebar h5 {
+                margin-bottom: 1.5rem;
+            }
+
+        .nav-link {
+            cursor: pointer;
+            margin-bottom: 0.5rem;
+        }
+
+            .nav-link.disabled {
+                color: #aaa;
+                cursor: not-allowed;
+            }
+
+        .content {
+            margin-left: 230px;
+            padding: 2rem;
+        }
+
+        .nav-link.active {
+            font-weight: bold;
+            color: #0d6efd;
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <h5>CARGA DE INFORMACIÓN</h5>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link disabled" href="#">Trayectos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link disabled" href="#">Peajes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link disabled" href="#">Parqueadero</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="@Url.Action("ConfirmarEstado", "TrayectoEspecial")">
+                    Trayectos Especiales
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="content">
+        <h2>Bienvenido a Trayectos Especiales</h2>
+        <p>Selecciona una opción en el menú lateral para comenzar.</p>
+    </main>
+</body>
+</html>
