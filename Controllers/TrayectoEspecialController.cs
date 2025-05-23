@@ -59,103 +59,72 @@ namespace Trayectos_Especiales.Controllers
 
             return View();
         }
-
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Crear(Trayecto trayecto)
         {
-            // Validar origen y destino
+            // Validaciones personalizadas
             if (trayecto.OrigenId == trayecto.DestinoId)
-            {
                 ModelState.AddModelError("", "El origen no puede ser igual al destino.");
-            }
 
-            // Validar fecha del servicio (debe ser hoy o después)
             if (trayecto.FechaServicio < DateTime.Today)
-            {
                 ModelState.AddModelError("", "La fecha del servicio debe ser igual o mayor a la fecha actual.");
+
+            // Validar formato de hora
+            TimeSpan horaServicio;
+            try
+            {
+                horaServicio = TimeSpan.Parse(trayecto.HoraServicio);
+            }
+            catch
+            {
+                ModelState.AddModelError("", "Formato de hora de servicio inválido.");
+                CargarUsuariosYLugares();
+                return View(trayecto);
             }
 
-            // Validar duplicados (usuario, fecha y hora)
+            // Validar duplicado en la base de datos antes de insertar
             using (var connection = new NpgsqlConnection(_configuration.GetConnectionString("PostgresConnection")))
             {
                 connection.Open();
 
                 using (var cmd = new NpgsqlCommand(
-                    "SELECT COUNT(*) FROM tbl_trayectos WHERE id_usuario = @usuario AND fechaservicio = @fecha AND horaservicio = @hora",
+                    "SELECT COUNT(*) FROM tbl_trayectos WHERE idusuario = @usuario AND fechaservicio = @fecha AND horaservicio = @hora",
                     connection))
                 {
                     cmd.Parameters.AddWithValue("usuario", trayecto.UsuarioId);
                     cmd.Parameters.AddWithValue("fecha", trayecto.FechaServicio);
-                    cmd.Parameters.AddWithValue("hora", TimeSpan.Parse(trayecto.HoraServicio));
+                    cmd.Parameters.AddWithValue("hora", horaServicio);
 
                     int count = Convert.ToInt32(cmd.ExecuteScalar());
                     if (count > 0)
-                    {
                         ModelState.AddModelError("", "Ya existe un trayecto para este usuario en la misma fecha y hora.");
-                    }
                 }
             }
 
             if (!ModelState.IsValid)
             {
-                // Cargar usuarios y lugares para volver a la vista con datos
-                var usuarios = new List<Usuario>();
-                var lugares = new List<OrigenDestino>();
-
-                using (var connection = new NpgsqlConnection(_configuration.GetConnectionString("PostgresConnection")))
-                {
-                    connection.Open();
-
-                    using (var cmd = new NpgsqlCommand("SELECT id, nombrecompleto FROM tbl_users", connection))
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            usuarios.Add(new Usuario
-                            {
-                                Id = reader.GetInt32(0),
-                                NombreCompleto = reader.GetString(1)
-                            });
-                        }
-                    }
-
-                    using (var cmd = new NpgsqlCommand("SELECT id, nombrelugar FROM tbl_origendestino WHERE esactivo = true", connection))
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            lugares.Add(new OrigenDestino
-                            {
-                                Id = reader.GetInt32(0),
-                                NombreLugar = reader.GetString(1),
-                                EsActivo = true
-                            });
-                        }
-                    }
-                }
-
-                ViewBag.Usuarios = usuarios;
-                ViewBag.Lugares = lugares;
-
+                CargarUsuariosYLugares();
                 return View(trayecto);
             }
 
-            // Si pasó todas las validaciones, insertar trayecto
+            // Insertar en la base de datos usando la función almacenada
             try
             {
                 using (var connection = new NpgsqlConnection(_configuration.GetConnectionString("PostgresConnection")))
                 {
                     connection.Open();
 
-                    using (var cmd = new NpgsqlCommand("SELECT insertar_trayecto(@fechasolicitud, @idusuario, @idorigen, @iddestino, @fechaservicio, @horaservicio)", connection))
+                    using (var cmd = new NpgsqlCommand("SELECT insertar_trayecto(@fechasolicitud, @usuarioid, @origenid, @destinoid, @fechaservicio, @horaservicio)", connection))
                     {
                         cmd.Parameters.AddWithValue("fechasolicitud", trayecto.FechaSolicitud);
-                        cmd.Parameters.AddWithValue("idusuario", trayecto.UsuarioId);
-                        cmd.Parameters.AddWithValue("idorigen", trayecto.OrigenId);
-                        cmd.Parameters.AddWithValue("iddestino", trayecto.DestinoId);
+                        cmd.Parameters.AddWithValue("usuarioid", trayecto.UsuarioId);
+                        cmd.Parameters.AddWithValue("origenid", trayecto.OrigenId);
+                        cmd.Parameters.AddWithValue("destinoid", trayecto.DestinoId);
                         cmd.Parameters.AddWithValue("fechaservicio", trayecto.FechaServicio);
-                        cmd.Parameters.AddWithValue("horaservicio", TimeSpan.Parse(trayecto.HoraServicio));
+                        cmd.Parameters.AddWithValue("horaservicio", horaServicio);
 
+                        // Ya no verificamos resultado, la función es VOID
                         cmd.ExecuteNonQuery();
                     }
                 }
@@ -166,49 +135,55 @@ namespace Trayectos_Especiales.Controllers
             catch (Exception ex)
             {
                 ViewBag.Error = "Error al guardar el trayecto: " + ex.Message;
-
-                // Recargar datos para la vista en caso de error
-                var usuarios = new List<Usuario>();
-                var lugares = new List<OrigenDestino>();
-
-                using (var connection = new NpgsqlConnection(_configuration.GetConnectionString("PostgresConnection")))
-                {
-                    connection.Open();
-
-                    using (var cmd = new NpgsqlCommand("SELECT id, nombrecompleto FROM tbl_users", connection))
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            usuarios.Add(new Usuario
-                            {
-                                Id = reader.GetInt32(0),
-                                NombreCompleto = reader.GetString(1)
-                            });
-                        }
-                    }
-
-                    using (var cmd = new NpgsqlCommand("SELECT id, nombrelugar FROM tbl_origendestino WHERE esactivo = true", connection))
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            lugares.Add(new OrigenDestino
-                            {
-                                Id = reader.GetInt32(0),
-                                NombreLugar = reader.GetString(1),
-                                EsActivo = true
-                            });
-                        }
-                    }
-                }
-
-                ViewBag.Usuarios = usuarios;
-                ViewBag.Lugares = lugares;
-
+                CargarUsuariosYLugares();
                 return View(trayecto);
             }
         }
+
+
+
+        // Método para cargar usuarios y lugares en ViewBag
+        private void CargarUsuariosYLugares()
+        {
+            var usuarios = new List<Usuario>();
+            var lugares = new List<OrigenDestino>();
+
+            using (var connection = new NpgsqlConnection(_configuration.GetConnectionString("PostgresConnection")))
+            {
+                connection.Open();
+
+                using (var cmd = new NpgsqlCommand("SELECT id, nombrecompleto FROM tbl_users", connection))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        usuarios.Add(new Usuario
+                        {
+                            Id = reader.GetInt32(0),
+                            NombreCompleto = reader.GetString(1)
+                        });
+                    }
+                }
+
+                using (var cmd = new NpgsqlCommand("SELECT id, nombrelugar FROM tbl_origendestino WHERE esactivo = true", connection))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        lugares.Add(new OrigenDestino
+                        {
+                            Id = reader.GetInt32(0),
+                            NombreLugar = reader.GetString(1),
+                            EsActivo = true
+                        });
+                    }
+                }
+            }
+
+            ViewBag.Usuarios = usuarios;
+            ViewBag.Lugares = lugares;
+        }
+
         [HttpGet]
         public IActionResult Listado()
         {

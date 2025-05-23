@@ -1,7 +1,6 @@
 ﻿@model Trayectos_Especiales.Models.Trayecto
 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-
 @{
     ViewData["Title"] = "Nuevo Trayecto Especial";
     var usuarios = ViewBag.Usuarios as List<Trayectos_Especiales.Models.Usuario>;
@@ -11,6 +10,7 @@
 <h2>@ViewData["Title"]</h2>
 
 <form asp-action="Crear" method="post">
+    @Html.AntiForgeryToken()
     <div class="form-group">
         <label for="FechaSolicitud">Fecha de Solicitud</label>
         <input asp-for="FechaSolicitud" class="form-control" type="date" required />
@@ -22,7 +22,7 @@
             <option value="">Seleccione un usuario</option>
             @foreach (var usuario in usuarios)
             {
-                <option value="@usuario.Id">@usuario.Nombre</option>
+                <option value="@usuario.Id">@usuario.NombreCompleto</option>
             }
         </select>
     </div>
@@ -33,7 +33,7 @@
             <option value="">Seleccione un origen</option>
             @foreach (var lugar in lugares)
             {
-                <option value="@lugar.Id">@lugar.Lugar</option>
+                <option value="@lugar.Id">@lugar.NombreLugar</option>
             }
         </select>
     </div>
@@ -44,7 +44,7 @@
             <option value="">Seleccione un destino</option>
             @foreach (var lugar in lugares)
             {
-                <option value="@lugar.Id">@lugar.Lugar</option>
+                <option value="@lugar.Id">@lugar.NombreLugar</option>
             }
         </select>
     </div>

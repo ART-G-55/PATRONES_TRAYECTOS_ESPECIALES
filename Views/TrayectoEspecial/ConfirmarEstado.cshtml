@@ -1,51 +1,129 @@
 ﻿@model List<TrayectoPendiente>
 
-<h2>Confirmar Estado de Trayectos Pendientes</h2>
+@{
+    ViewData["Title"] = "Confirmar Estado";
+    Layout = null; // Si decides no usar _Layout.cshtml
+}
 
-@if (Model.Count == 0)
-{
-    <p>No hay trayectos pendientes por confirmar.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Fecha Solicitud</th>
-                <th>Usuario</th>
-                <th>Origen</th>
-                <th>Destino</th>
-                <th>Fecha Servicio</th>
-                <th>Hora Servicio</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@item.FechaSolicitud.ToShortDateString()</td>
-                    <td>@item.NombreUsuario</td>
-                    <td>@item.NombreOrigen</td>
-                    <td>@item.NombreDestino</td>
-                    <td>@item.FechaServicio.ToShortDateString()</td>
-                    <td>@item.HoraServicio</td>
-                    <td>@item.Estado</td>
-                    <td>
-                        <form asp-action="ConfirmarEstado" method="post" style="display:inline">
-                            <input type="hidden" name="idTrayecto" value="@item.Id" />
-                            <input type="hidden" name="confirmar" value="true" />
-                            <button type="submit" class="btn btn-success btn-sm">Aprobar</button>
-                        </form>
-                        <form asp-action="ConfirmarEstado" method="post" style="display:inline; margin-left:5px;">
-                            <input type="hidden" name="idTrayecto" value="@item.Id" />
-                            <input type="hidden" name="confirmar" value="false" />
-                            <button type="submit" class="btn btn-danger btn-sm">Rechazar</button>
-                        </form>
-                    </td>
-                </tr>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Confirmar Estado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            color: white;
+            padding: 20px;
+        }
+
+            .sidebar h5 {
+                color: #ffc107;
             }
-        </tbody>
-    </table>
-}
+
+            .sidebar .nav-link {
+                color: #adb5bd;
+            }
+
+                .sidebar .nav-link.active {
+                    color: white;
+                    font-weight: bold;
+                }
+
+        .content {
+            padding: 20px;
+        }
+
+        .btn-nuevo {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Menú lateral -->
+            <div class="col-md-3 sidebar">
+                <h5>CARGA DE INFORMACIÓN</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link disabled" href="#">Trayectos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled" href="#">Peajes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled" href="#">Parqueadero</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="@Url.Action("ConfirmarEstado", "TrayectoEspecial")">
+                            Trayectos Especiales
+                        </a>
+                    </li>
+                </ul>
+                <a href="@Url.Action("Crear", "TrayectoEspecial")" class="btn btn-warning w-100 btn-nuevo">Nuevo Trayecto</a>
+            </div>
+
+            <!-- Contenido principal -->
+            <div class="col-md-9 content">
+                <h2>Confirmar Estado de Trayectos Pendientes</h2>
+
+                @if (Model.Count == 0)
+                {
+                    <p>No hay trayectos pendientes por confirmar.</p>
+                }
+                else
+                {
+                    <table class="table table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Fecha Solicitud</th>
+                                <th>Usuario</th>
+                                <th>Origen</th>
+                                <th>Destino</th>
+                                <th>Fecha Servicio</th>
+                                <th>Hora Servicio</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.FechaSolicitud.ToShortDateString()</td>
+                                    <td>@item.NombreUsuario</td>
+                                    <td>@item.NombreOrigen</td>
+                                    <td>@item.NombreDestino</td>
+                                    <td>@item.FechaServicio.ToShortDateString()</td>
+                                    <td>@item.HoraServicio</td>
+                                    <td>@item.Estado</td>
+                                    <td>
+                                        <form asp-action="ConfirmarEstado" method="post" style="display:inline">
+                                            <input type="hidden" name="idTrayecto" value="@item.Id" />
+                                            <input type="hidden" name="confirmar" value="true" />
+                                            <button type="submit" class="btn btn-success btn-sm">Aprobar</button>
+                                        </form>
+                                        <form asp-action="ConfirmarEstado" method="post" style="display:inline; margin-left:5px;">
+                                            <input type="hidden" name="idTrayecto" value="@item.Id" />
+                                            <input type="hidden" name="confirmar" value="false" />
+                                            <button type="submit" class="btn btn-danger btn-sm">Rechazar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</body>
+</html>
