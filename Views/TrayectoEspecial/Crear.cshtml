@@ -1,77 +1,63 @@
 ﻿@model Trayectos_Especiales.Models.Trayecto
-@Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
 @{
-    ViewData["Title"] = "Nuevo Trayecto Especial";
-    var usuarios = ViewBag.Usuarios as List<Trayectos_Especiales.Models.Usuario>;
-    var lugares = ViewBag.Lugares as List<Trayectos_Especiales.Models.OrigenDestino>;
+    ViewData["Title"] = "Crear Trayecto Especial";
+    var usuarios = ViewBag.Usuarios as List<SelectListItem>;
+    var lugares = ViewBag.Lugares as List<SelectListItem>;
 }
 
 <h2>@ViewData["Title"]</h2>
 
 <form asp-action="Crear" method="post">
-    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All" class="text-danger"></div>
+
     <div class="form-group">
-        <label for="FechaSolicitud">Fecha de Solicitud</label>
-        <input asp-for="FechaSolicitud" class="form-control" type="date" required />
+        <label asp-for="FechaSolicitud"></label>
+        <input asp-for="FechaSolicitud" class="form-control" type="date" />
+        <span asp-validation-for="FechaSolicitud" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="UsuarioId">Nombre del Usuario</label>
-        <select asp-for="UsuarioId" class="form-control" required>
-            <option value="">Seleccione un usuario</option>
-            @foreach (var usuario in usuarios)
-            {
-                <option value="@usuario.Id">@usuario.NombreCompleto</option>
-            }
+        <label asp-for="UsuarioId"></label>
+        <select asp-for="UsuarioId" class="form-control" asp-items="usuarios">
+            <option value="">-- Seleccione un usuario --</option>
         </select>
+        <span asp-validation-for="UsuarioId" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="OrigenId">Lugar de Origen</label>
-        <select asp-for="OrigenId" class="form-control" required>
-            <option value="">Seleccione un origen</option>
-            @foreach (var lugar in lugares)
-            {
-                <option value="@lugar.Id">@lugar.NombreLugar</option>
-            }
+        <label asp-for="OrigenId"></label>
+        <select asp-for="OrigenId" class="form-control" asp-items="lugares">
+            <option value="">-- Seleccione origen --</option>
         </select>
+        <span asp-validation-for="OrigenId" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="DestinoId">Lugar de Destino</label>
-        <select asp-for="DestinoId" class="form-control" required>
-            <option value="">Seleccione un destino</option>
-            @foreach (var lugar in lugares)
-            {
-                <option value="@lugar.Id">@lugar.NombreLugar</option>
-            }
+        <label asp-for="DestinoId"></label>
+        <select asp-for="DestinoId" class="form-control" asp-items="lugares">
+            <option value="">-- Seleccione destino --</option>
         </select>
+        <span asp-validation-for="DestinoId" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="FechaServicio">Fecha del Servicio</label>
-        <input asp-for="FechaServicio" class="form-control" type="date" required min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+        <label asp-for="FechaServicio"></label>
+        <input asp-for="FechaServicio" class="form-control" type="date" />
+        <span asp-validation-for="FechaServicio" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="HoraServicio">Hora del Servicio</label>
-        <input asp-for="HoraServicio" class="form-control" type="time" required />
+        <label asp-for="HoraServicio"></label>
+        <input asp-for="HoraServicio" class="form-control" type="time" />
+        <span asp-validation-for="HoraServicio" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary mt-3">Guardar Trayecto</button>
+    <button type="submit" class="btn btn-primary">Guardar</button>
 </form>
 
-@if (ViewBag.Error != null)
-{
-    <div class="alert alert-danger mt-3">
-        @ViewBag.Error
-    </div>
-}
-
-@if (TempData["Mensaje"] != null)
-{
-    <div class="alert alert-success mt-3">
-        @TempData["Mensaje"]
-    </div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
